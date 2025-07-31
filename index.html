@@ -3,26 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VALORAN – AI Mentor za Moške</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>Valoran – AI Mentor za Moške</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
-  <div class="background-overlay"></div>
-  <div class="chat-wrapper">
-    <header class="chat-header">
-      <img src="Logo.png" alt="Valoran Logo" class="logo" />
-      <h1>VALORAN</h1>
-      <h2>Bratstvo. Vizija. Disciplina.</h2>
-    </header>
-    <main class="chat-main">
-      <div id="chat-log" class="chat-log"></div>
-      <form id="chat-form" class="chat-form">
-        <textarea id="user-input" placeholder="Vprašaj Valorana..." rows="2"></textarea>
-        <button type="submit" title="Pošlji vprašanje">➤</button>
-      </form>
-    </main>
-  </div>
+  <header>
+    <h1 style="text-align: center; margin-top: 20px; color: white;">VALORAN</h1>
+    <p style="text-align: center; color: #aaa; font-size: 14px;">AI mentor za moške – fokus, odgovornost, moč</p>
+  </header>
+
+  <main>
+    <div id="chat-log" class="chat-container"></div>
+
+    <form id="chat-form" style="display: flex; justify-content: center; padding: 20px; gap: 10px;">
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Vprašaj mentorja..."
+        autocomplete="off"
+        style="flex: 1; padding: 12px 16px; border-radius: 10px; border: none; font-size: 16px;"
+      />
+      <button type="submit" id="submit-btn">Pošlji</button>
+    </form>
+  </main>
+
   <script src="script.js"></script>
 </body>
 </html>
