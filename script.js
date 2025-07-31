@@ -1,6 +1,6 @@
 const form = document.getElementById("chat-form");
 const input = document.getElementById("user-input");
-const chatContainer = document.getElementById("chat-container");
+const chatContainer = document.getElementById("chat-log"); // Popravljeno iz chat-container
 
 let chatHistory = [
   {
@@ -25,7 +25,7 @@ function addMessage(text, sender) {
   message.scrollIntoView({ behavior: "smooth" });
 }
 
-// Tipkanje po besedah (stream)
+// Tokovni odgovor (stream)
 async function streamReply(reader) {
   const decoder = new TextDecoder();
   let result = "";
@@ -47,6 +47,7 @@ async function streamReply(reader) {
   chatHistory.push({ role: "assistant", content: result });
 }
 
+// Pošlji sporočilo
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const userInput = input.value.trim();
@@ -66,7 +67,24 @@ form.addEventListener("submit", async (e) => {
     const reader = response.body.getReader();
     await streamReply(reader);
   } catch (error) {
-    addMessage("Napaka: poskusite znova.", "bot");
+    addMessage("Napaka: poskusi znova.", "bot");
     console.error(error);
   }
 });
+
+// Estetski scroll gumb
+const scrollBtn = document.createElement("button");
+scrollBtn.id = "scroll-btn";
+scrollBtn.title = "Pomakni se na dno";
+scrollBtn.textContent = "↓";
+document.body.appendChild(scrollBtn);
+
+window.addEventListener("scroll", () => {
+  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+  scrollBtn.style.display = nearBottom ? "none" : "block";
+});
+
+scrollBtn.addEventListener("click", () => {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+});
+
