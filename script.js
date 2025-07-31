@@ -5,14 +5,10 @@ const chatContainer = document.getElementById("chat-log");
 let chatHistory = [
   {
     role: "system",
-    content: `Govori kot izkušen moški mentor: jasen, miren, neposreden. Vodilo: fokus, odgovornost, dejanja.
-
-Struktura:
-1. Opiši težavo v 1 stavku.
-2. Postavi 1 konkretno podvprašanje.
-3. Predlagaj 1 naslednji korak.
-
-Ne olepšuj. Ne razlagaj preveč. Govori pogovorno, ne robotsko. Ne pametuj – vodi. Maks 3 stavki.`
+    content: `Govori kot izkušen moški mentor: jasen, miren, neposreden. Fokus, odgovornost, dejanja. Struktura:
+1. Poimenuj težavo.
+2. Postavi konkretno vprašanje.
+3. Predlagaj en naslednji korak. Brez olepševanja, brez pametovanja. 3 stavki max.`
   }
 ];
 
@@ -35,7 +31,6 @@ async function streamReply(reader) {
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-
     const chunk = decoder.decode(value);
     fullText += chunk;
   }
@@ -48,7 +43,7 @@ async function streamReply(reader) {
       message.textContent += (index > 0 ? " " : "") + words[index];
       message.scrollIntoView({ behavior: "smooth" });
       index++;
-      setTimeout(typeNextWord, 50); // Hitrost tipkanja
+      setTimeout(typeNextWord, 50);
     } else {
       chatHistory.push({ role: "assistant", content: fullText });
     }
@@ -84,17 +79,13 @@ form.addEventListener("submit", async (e) => {
 // Scroll gumb
 const scrollBtn = document.createElement("button");
 scrollBtn.id = "scroll-btn";
-scrollBtn.title = "Pomakni se na dno";
+scrollBtn.title = "Na dno";
 scrollBtn.textContent = "↓";
 document.body.appendChild(scrollBtn);
 
 window.addEventListener("scroll", () => {
   const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
   scrollBtn.style.display = nearBottom ? "none" : "block";
-});
-
-scrollBtn.addEventListener("click", () => {
-  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 });
 
 scrollBtn.addEventListener("click", () => {
