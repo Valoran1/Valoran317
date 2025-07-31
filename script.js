@@ -1,6 +1,6 @@
 const form = document.getElementById("chat-form");
 const input = document.getElementById("user-input");
-const chatContainer = document.getElementById("chat-log"); // Popravljeno iz chat-container
+const chatContainer = document.getElementById("chat-log");
 
 let chatHistory = [
   {
@@ -16,7 +16,6 @@ Ne olepšuj. Ne razlagaj preveč. Govori pogovorno, ne robotsko. Ne pametuj – 
   }
 ];
 
-// Dodajanje sporočil v DOM
 function addMessage(text, sender) {
   const message = document.createElement("div");
   message.classList.add(sender === "user" ? "user-message" : "bot-message");
@@ -25,10 +24,9 @@ function addMessage(text, sender) {
   message.scrollIntoView({ behavior: "smooth" });
 }
 
-// Tokovni odgovor (stream)
 async function streamReply(reader) {
   const decoder = new TextDecoder();
-  let result = "";
+  let fullText = "";
 
   const message = document.createElement("div");
   message.classList.add("bot-message");
@@ -39,15 +37,26 @@ async function streamReply(reader) {
     if (done) break;
 
     const chunk = decoder.decode(value);
-    result += chunk;
-    message.textContent = result;
-    message.scrollIntoView({ behavior: "smooth" });
+    fullText += chunk;
   }
 
-  chatHistory.push({ role: "assistant", content: result });
+  const words = fullText.split(" ");
+  let index = 0;
+
+  function typeNextWord() {
+    if (index < words.length) {
+      message.textContent += (index > 0 ? " " : "") + words[index];
+      message.scrollIntoView({ behavior: "smooth" });
+      index++;
+      setTimeout(typeNextWord, 50); // Hitrost tipkanja
+    } else {
+      chatHistory.push({ role: "assistant", content: fullText });
+    }
+  }
+
+  typeNextWord();
 }
 
-// Pošlji sporočilo
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const userInput = input.value.trim();
@@ -72,7 +81,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Estetski scroll gumb
+// Scroll gumb
 const scrollBtn = document.createElement("button");
 scrollBtn.id = "scroll-btn";
 scrollBtn.title = "Pomakni se na dno";
@@ -82,6 +91,10 @@ document.body.appendChild(scrollBtn);
 window.addEventListener("scroll", () => {
   const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
   scrollBtn.style.display = nearBottom ? "none" : "block";
+});
+
+scrollBtn.addEventListener("click", () => {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 });
 
 scrollBtn.addEventListener("click", () => {
