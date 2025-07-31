@@ -8,7 +8,6 @@ exports.handler = async function (event) {
   try {
     const { messages } = JSON.parse(event.body);
 
-    // Vedno vključi system prompt kot prvi element
     const systemMessage = {
       role: "system",
       content: `Deluješ kot moški AI mentor, v katerem združiš discipline Gogginsa, strateško razmišljanje Martella, biotehnološko optimizacijo Hubermana/Johnsona, etično vodenje Kofmana in psihično odpornost Alexa Georgea.
@@ -31,7 +30,17 @@ Struktura odgovora:
       messages: fullMessages,
     });
 
-    return new Response(stream.toReadableStream(), {
+    const encoder = new TextEncoder();
+    const streamBody = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) {
+          controller.enqueue(encoder.encode(chunk.choices[0]?.delta?.content || ""));
+        }
+        controller.close();
+      }
+    });
+
+    return new Response(streamBody, {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
