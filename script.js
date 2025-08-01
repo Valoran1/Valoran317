@@ -13,29 +13,37 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   input.value = "";
   messageCount++;
 
-  // zazna cilj
+  // Zaznaj cilj
   if (!goal && /(hočem|rad bi|cilj|želim|moram|morali bi)/i.test(userMessage)) {
     goal = userMessage;
   }
 
-  // zazna ton
+  // Zaznaj ton
   let tone = "";
-  if (/(nič ne gre|nimam volje|ne zmorem|sovražim|j***|obupano)/i.test(userMessage)) {
+  if (/(nič ne gre|nimam volje|ne zmorem|sovražim|jebem|obupano|preklinjam)/i.test(userMessage)) {
     tone = "frustrated";
   } else if (/(ne vem|mogoče|ni mi jasno|nisem prepričan)/i.test(userMessage)) {
     tone = "soft";
   }
 
-  const response = await fetch("/.netlify/functions/chat", {
-    method: "POST",
-    body: JSON.stringify({ messages, goal, tone, messageCount })
-  });
+  try {
+    const response = await fetch("/.netlify/functions/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, goal, tone, messageCount })
+    });
 
-  const reply = await response.text();
-  addMessage("valoran", reply);
+    const reply = await response.text();
 
-  messages.push({ role: "user", content: userMessage });
-  messages.push({ role: "assistant", content: reply });
+    addMessage("valoran", reply);
+
+    messages.push({ role: "user", content: userMessage });
+    messages.push({ role: "assistant", content: reply });
+
+  } catch (error) {
+    addMessage("valoran", "⚠️ Napaka pri povezavi s strežnikom.");
+    console.error("Napaka pri pošiljanju:", error);
+  }
 });
 
 function addMessage(role, content) {
