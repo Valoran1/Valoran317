@@ -12,20 +12,24 @@ form.addEventListener("submit", async (e) => {
   chatHistory.push({ role: "user", content: userInput });
   input.value = "";
 
-  const loadingMsg = addMessage("assistant", "⠿⠿⠿");
+  const typing = showTypingIndicator();
+
   const res = await fetch("/.netlify/functions/chat", {
     method: "POST",
     body: JSON.stringify({ messages: chatHistory }),
   });
 
   if (!res.ok) {
-    loadingMsg.innerText = "Napaka pri pridobivanju odgovora.";
+    typing.remove();
+    addMessage("assistant", "Napaka pri pridobivanju odgovora.");
     return;
   }
 
   const responseText = await res.text();
-  loadingMsg.innerText = "";
-  simulateTyping(loadingMsg, responseText);
+  typing.remove();
+
+  const msgElement = addMessage("assistant", "");
+  simulateTyping(msgElement, responseText);
   chatHistory.push({ role: "assistant", content: responseText });
 });
 
@@ -38,6 +42,20 @@ function addMessage(role, text) {
   return msg;
 }
 
+function showTypingIndicator() {
+  const container = document.createElement("div");
+  container.className = "message assistant";
+
+  const typing = document.createElement("div");
+  typing.className = "typing-indicator";
+  typing.innerHTML = "<span></span><span></span><span></span>";
+
+  container.appendChild(typing);
+  chatLog.appendChild(container);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return container;
+}
+
 function simulateTyping(element, text) {
   let index = 0;
   const interval = setInterval(() => {
@@ -48,6 +66,7 @@ function simulateTyping(element, text) {
     } else {
       clearInterval(interval);
     }
-  }, 20); // hitro tipkanje
+  }, 20);
 }
+
 
