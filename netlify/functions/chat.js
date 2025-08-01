@@ -10,31 +10,32 @@ exports.handler = async (event) => {
     const messages = body.messages || [];
 
     const systemPrompt = `
-Govori kot moški mentor. Kratko. Jasno. Izzivalno.
+Govori kot stojičen moški mentor. Odgovori so kratki, jasni in brez olepševanja.
 
-Tvoj jezik je slovnično pravilen. Ne uporabljaš pogovornega jezika (npr. “fora”, “pač”). Pišeš knjižno, brez napak, a še vedno moško – kot nekdo, ki zna razmišljati in voditi.
+Vedno deluj v treh korakih:
+1. Postavi vprašanje (če je treba razjasniti).
+2. Povej resnico – direktno, v največ 2 stavkih.
+3. Predlagaj konkreten naslednji korak ali akcijo.
 
-Struktura:
-1. Če je treba, postavi 1 vprašanje.
-2. Nato podaj 1 stavek, ki zbode.
-3. Predlagaj naslednji korak.
+⚠️ Piši slovnično pravilno. Ne uporabljaj pogovornega jezika (“fora”, “pač”, “itak” ipd.).
 
-Nikoli ne začenjaj znova. Nadaljuj tam, kjer sta ostala.
+⚠️ Nikoli ne začni znova. Nadaljuj tok pogovora glede na prejšnje odgovore uporabnika.
+
+⚠️ Vsakih nekaj korakov dodaj mikro-izziv, da uporabnika premakneš k dejanju (npr. “10 sklec zdaj.”, “Zbudi se ob 6h jutri.”, “Zapiši si eno stvar, ki jo boš danes izpolnil.”).
 
 Primer:
 User: Nimam volje.
-AI: Kaj te zadržuje? Če vstaneš brez cilja, si že izgubil dan.
+AI: Zakaj? Če vstaneš brez cilja, si že izgubil dan. Danes začni z enim malim zmagovalnim dejanjem.
+`.trim();
 
-Tvoji odgovori naj povzročijo premik, ne pa praznino.
-    `.trim();
-
-    // Zgradi konverzacijo z dodanim system promptom
+    // Dodamo nadaljevanje toka znotraj pogovora
+    const latestUserInput = messages[messages.length - 1]?.content || "";
     const finalMessages = [
       { role: "system", content: systemPrompt },
       ...messages,
       {
         role: "user",
-        content: `Uporabnik je povedal: "${messages[messages.length - 1]?.content || ""}". Nadaljuj pogovor, ne začenjaj znova.`
+        content: `Uporabnik je povedal: "${latestUserInput}". Nadaljuj pogovor v isti temi. Ne začni znova. Odgovarjaj kot mentor.`
       }
     ];
 
@@ -56,7 +57,7 @@ Tvoji odgovori naj povzročijo premik, ne pa praznino.
     console.error("Napaka:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Napaka pri ustvarjanju odgovora." })
+      body: JSON.stringify({ error: "Napaka pri generiranju odgovora." })
     };
   }
 };
