@@ -2,35 +2,19 @@
 <html lang="sl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Valoran – AI Mentor za Moške</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valoran – AI Mentor</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
-<body style="background-color: #121212; color: white; font-family: 'Segoe UI', sans-serif;">
+<body>
+  <div id="chat-wrapper">
+    <div id="chat-log"></div>
 
-  <header style="text-align: center; margin-top: 30px;">
-    <img src="logo.png" alt="Valoran Logo" style="width: 100px; margin-bottom: 10px;" />
-    <h1 style="font-size: 32px; font-weight: bold; letter-spacing: 2px;">VALORAN</h1>
-    <p style="color: #aaa; font-size: 14px;">Tvoj osebni AI mentor – moč, jasnost, odgovornost</p>
-  </header>
-
-  <main>
-    <div id="chat-log" class="chat-container" style="margin-top: 40px;"></div>
-
-    <form id="chat-form" style="display: flex; justify-content: center; gap: 10px; padding: 20px 5%;">
-      <input
-        id="user-input"
-        type="text"
-        placeholder="Vprašaj mentorja..."
-        autocomplete="off"
-        style="flex: 1; padding: 14px 16px; border-radius: 12px; border: none; font-size: 16px; background: #1e1e1e; color: white;"
-      />
-      <button type="submit" id="submit-btn">Pošlji</button>
+    <form id="chat-form">
+      <input type="text" id="user-input" placeholder="Vprašaj Valorana..." autocomplete="off" />
+      <button type="submit" id="submit-btn">➤</button>
     </form>
-  </main>
-
-  <!-- Scroll gumb se generira iz script.js -->
+  </div>
 
   <script src="script.js"></script>
 </body>
