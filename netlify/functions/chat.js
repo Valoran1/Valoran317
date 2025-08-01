@@ -4,7 +4,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-exports.handler = async function (event) {
+exports.handler = async function (event, context) {
   try {
     const { messages } = JSON.parse(event.body);
 
@@ -31,26 +31,28 @@ Struktura odgovora:
     });
 
     const encoder = new TextEncoder();
-    const streamBody = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of stream) {
-          controller.enqueue(encoder.encode(chunk.choices[0]?.delta?.content || ""));
-        }
-        controller.close();
-      }
-    });
+    const chunks = [];
 
-    return new Response(streamBody, {
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content || "";
+      chunks.push(text);
+    }
+
+    return {
+      statusCode: 200,
       headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
+        "Content-Type": "text/plain",
+        "Access-Control-Allow-Origin": "*"
       },
-    });
+      body: chunks.join("")
+    };
 
   } catch (error) {
     console.error("Napaka v funkciji:", error);
-    return new Response("Napaka: " + error.message, { status: 500 });
+    return {
+      statusCode: 500,
+      body: "Napaka: " + error.message,
+    };
   }
 };
 
