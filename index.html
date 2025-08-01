@@ -3,16 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Valoran – AI Mentor</title>
+  <title>Valoran – AI mentor za moške</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="chat-wrapper">
-    <div id="chat-log"></div>
+  <div class="container">
+    <header>
+      <h1>VALORAN</h1>
+      <p class="subtitle">Tvoj osebni AI mentor za moč, disciplino in rast</p>
+    </header>
 
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Vprašaj Valorana..." autocomplete="off" />
-      <button type="submit" id="submit-btn">➤</button>
+    <div id="chat-box" class="chat-box">
+      <!-- Sporočila se izpišejo tukaj -->
+    </div>
+
+    <form id="chat-form" class="chat-form">
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Vpiši svoje vprašanje..."
+        autocomplete="off"
+      />
+      <button type="submit">➤</button>
     </form>
   </div>
 
