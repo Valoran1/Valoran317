@@ -1,94 +1,53 @@
 const form = document.getElementById("chat-form");
 const input = document.getElementById("user-input");
-const chatContainer = document.getElementById("chat-log");
-
-let chatHistory = [
-  {
-    role: "system",
-    content: `Govori kot izkušen moški mentor: jasen, miren, neposreden. Fokus, odgovornost, dejanja. Struktura:
-1. Poimenuj težavo.
-2. Postavi konkretno vprašanje.
-3. Predlagaj en naslednji korak. Brez olepševanja, brez pametovanja. 3 stavki max.`
-  }
-];
-
-function addMessage(text, sender) {
-  const message = document.createElement("div");
-  message.classList.add(sender === "user" ? "user-message" : "bot-message");
-  message.textContent = text;
-  chatContainer.appendChild(message);
-  message.scrollIntoView({ behavior: "smooth" });
-}
-
-async function streamReply(reader) {
-  const decoder = new TextDecoder();
-  let fullText = "";
-
-  const message = document.createElement("div");
-  message.classList.add("bot-message");
-  chatContainer.appendChild(message);
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const chunk = decoder.decode(value);
-    fullText += chunk;
-  }
-
-  const words = fullText.split(" ");
-  let index = 0;
-
-  function typeNextWord() {
-    if (index < words.length) {
-      message.textContent += (index > 0 ? " " : "") + words[index];
-      message.scrollIntoView({ behavior: "smooth" });
-      index++;
-      setTimeout(typeNextWord, 50);
-    } else {
-      chatHistory.push({ role: "assistant", content: fullText });
-    }
-  }
-
-  typeNextWord();
-}
+const chatLog = document.getElementById("chat-log");
+let chatHistory = [];
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const userInput = input.value.trim();
   if (!userInput) return;
 
-  addMessage(userInput, "user");
+  addMessage("user", userInput);
   chatHistory.push({ role: "user", content: userInput });
   input.value = "";
 
-  try {
-    const response = await fetch("/.netlify/functions/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: chatHistory })
-    });
+  const loadingMsg = addMessage("assistant", "⠿⠿⠿");
+  const res = await fetch("/.netlify/functions/chat", {
+    method: "POST",
+    body: JSON.stringify({ messages: chatHistory }),
+  });
 
-    const reader = response.body.getReader();
-    await streamReply(reader);
-  } catch (error) {
-    addMessage("Napaka: poskusi znova.", "bot");
-    console.error(error);
+  if (!res.ok) {
+    loadingMsg.innerText = "Napaka pri pridobivanju odgovora.";
+    return;
   }
+
+  const responseText = await res.text();
+  loadingMsg.innerText = "";
+  simulateTyping(loadingMsg, responseText);
+  chatHistory.push({ role: "assistant", content: responseText });
 });
 
-// Scroll gumb
-const scrollBtn = document.createElement("button");
-scrollBtn.id = "scroll-btn";
-scrollBtn.title = "Na dno";
-scrollBtn.textContent = "↓";
-document.body.appendChild(scrollBtn);
+function addMessage(role, text) {
+  const msg = document.createElement("div");
+  msg.className = `message ${role}`;
+  msg.innerText = text;
+  chatLog.appendChild(msg);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return msg;
+}
 
-window.addEventListener("scroll", () => {
-  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-  scrollBtn.style.display = nearBottom ? "none" : "block";
-});
-
-scrollBtn.addEventListener("click", () => {
-  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-});
+function simulateTyping(element, text) {
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index < text.length) {
+      element.innerText += text[index];
+      index++;
+      chatLog.scrollTop = chatLog.scrollHeight;
+    } else {
+      clearInterval(interval);
+    }
+  }, 20); // hitro tipkanje
+}
 
