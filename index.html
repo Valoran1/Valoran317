@@ -7,24 +7,24 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>VALORAN</h1>
-      <p class="subtitle">Tvoj osebni AI mentor za disciplino, rast in moč</p>
-    </header>
 
-    <div id="chat-box" class="chat-box"></div>
+  <!-- Pogovorno okno -->
+  <div class="chat-container" id="chat-box"></div>
 
-    <form id="chat-form" class="chat-form">
-      <input
-        id="user-input"
-        type="text"
-        placeholder="Vpiši svoje vprašanje..."
-        autocomplete="off"
-      />
-      <button type="submit">➤</button>
-    </form>
-  </div>
+  <!-- Vnos in gumb za pošiljanje -->
+  <form id="chat-form" class="chat-form" style="display: flex; padding: 20px;">
+    <input
+      id="user-input"
+      type="text"
+      placeholder="Vprašaj Valorana..."
+      autocomplete="off"
+      style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #222; color: white; font-size: 16px;"
+    />
+    <button type="submit" id="submit-btn">➤</button>
+  </form>
+
+  <!-- Scroll gumb -->
+  <button id="scroll-btn" onclick="scrollToBottom()">↓</button>
 
   <script src="script.js"></script>
 </body>
