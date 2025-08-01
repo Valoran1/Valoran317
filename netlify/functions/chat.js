@@ -1,66 +1,62 @@
 const { OpenAI } = require("openai");
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-exports.handler = async function (event, context) {
+exports.handler = async (event) => {
   try {
-    const { messages } = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
+    const messages = body.messages || [];
 
-    const systemMessage = {
-      role: "system",
-      content: `Deluješ kot moški AI mentor (stojičen, direkten, strukturiran). Vodiš pogovor v nitih, vedno se sklicuješ na prejšnji kontekst in ne začneš znova.
+    const systemPrompt = `
+Govori kot moški mentor. Kratko. Jasno. Izzivalno.
 
-Vsak pogovor vodiš v 3 fazah:
-1. Razjasni težavo (postavi podvprašanje, če je treba)
-2. Poglobi razumevanje (poveži odgovore z novimi vprašanji)
-3. Predlagaj konkreten naslednji korak
+Tvoj jezik je slovnično pravilen. Ne uporabljaš pogovornega jezika (npr. “fora”, “pač”). Pišeš knjižno, brez napak, a še vedno moško – kot nekdo, ki zna razmišljati in voditi.
 
-⚠️ Pomembno:
-- Če uporabnik odgovori na tvoje vprašanje, to razumi kot NADALJEVANJE istega problema, ne nov začetek.
-- Ostanek pogovora naj ima jasen fokus.
-- Odgovarjaj kratko, moško, brez olepševanja.
+Struktura:
+1. Če je treba, postavi 1 vprašanje.
+2. Nato podaj 1 stavek, ki zbode.
+3. Predlagaj naslednji korak.
+
+Nikoli ne začenjaj znova. Nadaljuj tam, kjer sta ostala.
 
 Primer:
-User: Ne znam se spraviti k vadbi.
-AI: Zakaj misliš, da odlašaš? Čas, volja ali zmedenost?
-User: Nimam energije.
-AI: Potem za začetek... (nadaljuje logično)
+User: Nimam volje.
+AI: Kaj te zadržuje? Če vstaneš brez cilja, si že izgubil dan.
 
-Ne odgovarjaj kot da je vsaka izjava ločeno vprašanje. Nadaljuj strukturo.`
-    };
+Tvoji odgovori naj povzročijo premik, ne pa praznino.
+    `.trim();
 
-    const fullMessages = [systemMessage, ...messages.filter(m => m.role !== "system")];
+    // Zgradi konverzacijo z dodanim system promptom
+    const finalMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages,
+      {
+        role: "user",
+        content: `Uporabnik je povedal: "${messages[messages.length - 1]?.content || ""}". Nadaljuj pogovor, ne začenjaj znova.`
+      }
+    ];
 
-    const stream = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o",
-      stream: true,
-      messages: fullMessages,
+      messages: finalMessages,
+      temperature: 0.7,
+      max_tokens: 500,
+      stream: false
     });
 
-    const encoder = new TextEncoder();
-    const chunks = [];
-
-    for await (const chunk of stream) {
-      const text = chunk.choices[0]?.delta?.content || "";
-      chunks.push(text);
-    }
-
+    const reply = completion.choices[0].message.content;
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "text/plain",
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: chunks.join("")
+      body: reply
     };
 
   } catch (error) {
-    console.error("Napaka v funkciji:", error);
+    console.error("Napaka:", error);
     return {
       statusCode: 500,
-      body: "Napaka: " + error.message,
+      body: JSON.stringify({ error: "Napaka pri ustvarjanju odgovora." })
     };
   }
 };
