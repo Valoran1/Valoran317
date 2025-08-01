@@ -5,28 +5,41 @@
   padding: 0;
 }
 
-/* Glavno ozadje */
+/* Glavni izgled */
 body {
-  font-family: 'Segoe UI', sans-serif;
   background-color: #000;
-  color: #fff;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   min-height: 100vh;
 }
 
-/* Pogovorno okno */
+/* Logo */
+header {
+  padding: 20px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #f0a500;
+}
+
+/* Chat okno */
 .chat-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 24px;
   width: 100%;
   max-width: 800px;
-  height: 75vh;
+  padding: 20px;
   overflow-y: auto;
+  flex-grow: 1;
+  height: 70vh;
 }
 
 /* Sporočila */
@@ -35,30 +48,45 @@ body {
   font-size: 16px;
   line-height: 1.5;
   white-space: pre-wrap;
-  word-wrap: break-word;
   max-width: 70%;
-  padding: 6px 12px;
+  padding: 10px 16px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in forwards;
 }
 
 .user-message {
   align-self: flex-end;
-  text-align: right;
+  background-color: transparent;
   color: #00bcd4;
+  text-align: right;
 }
 
 .bot-message {
   align-self: flex-start;
+  background-color: transparent;
+  color: #ffffff;
   text-align: left;
-  color: #f0f0f0;
 }
 
-/* Vnosno polje */
+/* Fade-in animacija */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Input form */
 .chat-form {
   display: flex;
   gap: 12px;
   width: 100%;
   max-width: 800px;
-  padding: 16px 24px;
+  padding: 16px;
   background-color: #000;
   position: sticky;
   bottom: 0;
