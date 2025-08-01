@@ -1,83 +1,132 @@
-/* Chat container */
-.chat-container {
+/* Osnovno telo */
+body {
+  background-color: #0f0f0f;
+  color: #fff;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px;
+  height: 100vh;
+}
+
+/* Chat container */
+#chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   max-width: 800px;
   margin: 0 auto;
+  padding: 30px 20px 90px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
-/* Sporočila */
-.user-message, .bot-message {
+/* Posamezno sporočilo */
+.message {
   padding: 12px 16px;
+  margin-bottom: 12px;
+  max-width: 85%;
+  line-height: 1.6;
   border-radius: 12px;
-  max-width: 80%;
-  line-height: 1.5;
-  font-size: 16px;
   white-space: pre-wrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  animation: fadeIn 0.3s ease-in;
+  word-wrap: break-word;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease-in-out;
 }
 
-.user-message {
+/* Uporabniško sporočilo */
+.message.user {
+  background: linear-gradient(135deg, #202020, #2a2a2a);
   align-self: flex-end;
-  background: #2f2f2f;
-  color: #fff;
+  text-align: right;
 }
 
-.bot-message {
+/* AI odgovor */
+.message.assistant {
+  background: linear-gradient(135deg, #1a1a1a, #111);
   align-self: flex-start;
-  background: #ececec;
-  color: #111;
+  border-left: 4px solid #555;
 }
 
-/* Fade-in animacija */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Scroll gumb */
-#scroll-btn {
+/* Vnosno polje */
+#chat-form {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: linear-gradient(135deg, #ff4600, #d92b00);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  display: none;
-  z-index: 999;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  bottom: 0;
+  width: 100%;
+  max-width: 800px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #121212;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
 }
 
-#scroll-btn:hover {
-  transform: scale(1.1);
-  background: linear-gradient(135deg, #ff2200, #aa1500);
+/* Input box */
+#user-input {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 16px;
+  background-color: #1f1f1f;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+#user-input:focus {
+  border-color: #666;
 }
 
 /* Submit gumb */
 #submit-btn {
-  background: linear-gradient(135deg, #ff4600, #d92b00);
-  color: white;
+  background: linear-gradient(135deg, #333, #1a1a1a);
   border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  color: white;
+  font-size: 20px;
+  padding: 12px 20px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 #submit-btn:hover {
-  background: linear-gradient(135deg, #ff2200, #aa1500);
+  background: linear-gradient(135deg, #444, #222);
   transform: scale(1.05);
+}
+
+/* Scrollbar (temen in estetski) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #chat-container {
+    padding: 20px 10px 100px;
+  }
+
+  #user-input {
+    font-size: 14px;
+  }
+
+  #submit-btn {
+    font-size: 18px;
+    padding: 10px 16px;
+  }
 }
