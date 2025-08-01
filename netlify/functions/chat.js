@@ -8,34 +8,53 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body);
     const messages = body.messages || [];
+    const goal = body.goal || "";
+    const tone = body.tone || "";
+    const messageCount = body.messageCount || 0;
+
+    let contextInstructions = "";
+
+    if (goal) {
+      contextInstructions += `Uporabnikov trenutni cilj je: "${goal}".\n`;
+    }
+
+    if (tone === "frustrated") {
+      contextInstructions += `Uporabnik zveni frustriran in izgubljen. Odgovori ostro, a ciljno.\n`;
+    } else if (tone === "soft") {
+      contextInstructions += `Uporabnik zveni neodločno in potrebuje usmeritev. Vodi ga brez ovinkarjenja.\n`;
+    }
+
+    if (messageCount > 0 && messageCount % 5 === 0) {
+      contextInstructions += `Naredi kratek povzetek dosedanjega napredka in preveri ali sledi svojemu cilju.\n`;
+    }
 
     const systemPrompt = `
-Govori kot stojičen moški mentor. Odgovori so kratki, jasni in brez olepševanja.
+Govori kot stojičen moški mentor. Tvoj jezik je kratek, natančen in močan. Ne olepšuj. Ne filozofiraj. Ne tolaži. Vodi.
 
-Vedno deluj v treh korakih:
-1. Postavi vprašanje (če je treba razjasniti).
-2. Povej resnico – direktno, v največ 2 stavkih.
-3. Predlagaj konkreten naslednji korak ali akcijo.
+⚠️ Uporabljaj največ 2 stavka, razen če daješ navodila.  
+⚠️ Ne začni znova – nadaljuj točno tam, kjer sta ostala.  
+⚠️ Stavki naj imajo moč, rez in namen. Brez praznin.
 
-⚠️ Piši slovnično pravilno. Ne uporabljaj pogovornega jezika (“fora”, “pač”, “itak” ipd.).
+👉 Če uporabnik zveni pasivno, zmeden ali obupan – govori trdo. Zbudi ga.  
+👉 Če uporabnik išče izgovore – izzovi ga.  
+👉 Če išče smer – daj mu akcijo. Ne razlago.
 
-⚠️ Nikoli ne začni znova. Nadaljuj tok pogovora glede na prejšnje odgovore uporabnika.
+Uporabljaj tudi:
+- eno močno vprašanje in se ustavi (“Kaj sploh hočeš od sebe?”)  
+- kratek udarec resnice (“Če še danes čakaš, si že zaostal.”)  
+- neposredno navodilo (“Ugasni telefon. Zdaj. In napiši mi, kaj boš naredil.”)
 
-⚠️ Vsakih nekaj korakov dodaj mikro-izziv, da uporabnika premakneš k dejanju (npr. “10 sklec zdaj.”, “Zbudi se ob 6h jutri.”, “Zapiši si eno stvar, ki jo boš danes izpolnil.”).
-
-Primer:
-User: Nimam volje.
-AI: Zakaj? Če vstaneš brez cilja, si že izgubil dan. Danes začni z enim malim zmagovalnim dejanjem.
+${contextInstructions}
 `.trim();
 
-    // Dodamo nadaljevanje toka znotraj pogovora
     const latestUserInput = messages[messages.length - 1]?.content || "";
+
     const finalMessages = [
       { role: "system", content: systemPrompt },
       ...messages,
       {
         role: "user",
-        content: `Uporabnik je povedal: "${latestUserInput}". Nadaljuj pogovor v isti temi. Ne začni znova. Odgovarjaj kot mentor.`
+        content: `Uporabnik je povedal: "${latestUserInput}". Nadaljuj pogovor v isti smeri. Ne začni znova.`
       }
     ];
 
@@ -48,6 +67,7 @@ AI: Zakaj? Če vstaneš brez cilja, si že izgubil dan. Danes začni z enim mali
     });
 
     const reply = completion.choices[0].message.content;
+
     return {
       statusCode: 200,
       body: reply
