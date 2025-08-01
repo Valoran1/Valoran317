@@ -1,72 +1,50 @@
-const form = document.getElementById("chat-form");
-const input = document.getElementById("user-input");
-const chatLog = document.getElementById("chat-log");
-let chatHistory = [];
+let messages = [];
+let goal = "";
+let messageCount = 0;
 
-form.addEventListener("submit", async (e) => {
+document.getElementById("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const userInput = input.value.trim();
-  if (!userInput) return;
 
-  addMessage("user", userInput);
-  chatHistory.push({ role: "user", content: userInput });
+  const input = document.getElementById("user-input");
+  const userMessage = input.value.trim();
+  if (!userMessage) return;
+
+  addMessage("user", userMessage);
   input.value = "";
+  messageCount++;
 
-  const typing = showTypingIndicator();
-
-  const res = await fetch("/.netlify/functions/chat", {
-    method: "POST",
-    body: JSON.stringify({ messages: chatHistory }),
-  });
-
-  if (!res.ok) {
-    typing.remove();
-    addMessage("assistant", "Napaka pri pridobivanju odgovora.");
-    return;
+  // zazna cilj
+  if (!goal && /(hočem|rad bi|cilj|želim|moram|morali bi)/i.test(userMessage)) {
+    goal = userMessage;
   }
 
-  const responseText = await res.text();
-  typing.remove();
+  // zazna ton
+  let tone = "";
+  if (/(nič ne gre|nimam volje|ne zmorem|sovražim|j***|obupano)/i.test(userMessage)) {
+    tone = "frustrated";
+  } else if (/(ne vem|mogoče|ni mi jasno|nisem prepričan)/i.test(userMessage)) {
+    tone = "soft";
+  }
 
-  const msgElement = addMessage("assistant", "");
-  simulateTyping(msgElement, responseText);
-  chatHistory.push({ role: "assistant", content: responseText });
+  const response = await fetch("/.netlify/functions/chat", {
+    method: "POST",
+    body: JSON.stringify({ messages, goal, tone, messageCount })
+  });
+
+  const reply = await response.text();
+  addMessage("valoran", reply);
+
+  messages.push({ role: "user", content: userMessage });
+  messages.push({ role: "assistant", content: reply });
 });
 
-function addMessage(role, text) {
+function addMessage(role, content) {
+  const chatBox = document.getElementById("chat-box");
   const msg = document.createElement("div");
   msg.className = `message ${role}`;
-  msg.innerText = text;
-  chatLog.appendChild(msg);
-  chatLog.scrollTop = chatLog.scrollHeight;
-  return msg;
-}
-
-function showTypingIndicator() {
-  const container = document.createElement("div");
-  container.className = "message assistant";
-
-  const typing = document.createElement("div");
-  typing.className = "typing-indicator";
-  typing.innerHTML = "<span></span><span></span><span></span>";
-
-  container.appendChild(typing);
-  chatLog.appendChild(container);
-  chatLog.scrollTop = chatLog.scrollHeight;
-  return container;
-}
-
-function simulateTyping(element, text) {
-  let index = 0;
-  const interval = setInterval(() => {
-    if (index < text.length) {
-      element.innerText += text[index];
-      index++;
-      chatLog.scrollTop = chatLog.scrollHeight;
-    } else {
-      clearInterval(interval);
-    }
-  }, 20);
+  msg.innerText = content;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 
